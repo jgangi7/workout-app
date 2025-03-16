@@ -22,15 +22,22 @@ func main() {
 	// Create router
 	r := mux.NewRouter()
 
-	// Register routes
-	r.HandleFunc("/workouts", workoutHandler.GetWorkouts).Methods("GET")
-	r.HandleFunc("/workouts", workoutHandler.CreateWorkout).Methods("POST")
-	r.HandleFunc("/workouts/{id:[0-9]+}", workoutHandler.GetWorkout).Methods("GET")
-	r.HandleFunc("/workouts/{id:[0-9]+}", workoutHandler.UpdateWorkout).Methods("PUT")
-	r.HandleFunc("/workouts/{id:[0-9]+}", workoutHandler.DeleteWorkout).Methods("DELETE")
+	// Serve static files
+	fs := http.FileServer(http.Dir("static"))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
-	// Set router as default handler
-	http.Handle("/", r)
+	// Serve index.html for the root path
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/index.html")
+	})
+
+	// API routes
+	api := r.PathPrefix("/api").Subrouter()
+	api.HandleFunc("/workouts", workoutHandler.GetWorkouts).Methods("GET")
+	api.HandleFunc("/workouts", workoutHandler.CreateWorkout).Methods("POST")
+	api.HandleFunc("/workouts/{id:[0-9]+}", workoutHandler.GetWorkout).Methods("GET")
+	api.HandleFunc("/workouts/{id:[0-9]+}", workoutHandler.UpdateWorkout).Methods("PUT")
+	api.HandleFunc("/workouts/{id:[0-9]+}", workoutHandler.DeleteWorkout).Methods("DELETE")
 
 	// Start server
 	log.Println("Server starting on http://localhost:8080")
