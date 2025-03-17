@@ -1,3 +1,64 @@
+/* Light mode styles */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #212529;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+    --input-text: #212529;
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] {
+    --bg-color: #212529;
+    --text-color: #f8f9fa;
+    --card-bg: #2c3034;
+    --border-color: #495057;
+    --input-bg: #343a40;
+    --input-border: #495057;
+    --input-text: #f8f9fa;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.form-control:focus {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--border-color);
+}
+
 .workout-card {
     transition: transform 0.2s;
 }
@@ -6,30 +67,13 @@
     transform: translateY(-5px);
 }
 
-.workout-type-strength {
-    border-left: 4px solid #dc3545;
-}
-
-.workout-type-cardio {
-    border-left: 4px solid #198754;
-}
-
-.workout-type-flexibility {
-    border-left: 4px solid #0d6efd;
-}
-
-.workout-duration {
-    font-size: 0.9rem;
-    color: #6c757d;
+.workout-details {
+    margin: 1rem 0;
 }
 
 .workout-date {
     font-size: 0.8rem;
     color: #6c757d;
-}
-
-.card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .navbar {

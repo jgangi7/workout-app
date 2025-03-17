@@ -25,9 +25,16 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	workout.CreatedAt = time.Now()
 
-	// TODO: Save workout to database
+	// Set the date to current time if not provided
+	if workout.Date.IsZero() {
+		workout.Date = time.Now()
+	}
+
+	if err := h.db.CreateWorkout(&workout); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -35,8 +42,11 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *WorkoutHandler) GetWorkouts(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement getting workouts from database
-	workouts := []models.Workout{}
+	workouts, err := h.db.GetWorkouts()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(workouts)
@@ -50,8 +60,11 @@ func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Get workout from database
-	workout := models.Workout{ID: id}
+	workout, err := h.db.GetWorkout(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(workout)
@@ -70,9 +83,13 @@ func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	workout.ID = id
 
-	// TODO: Update workout in database
+	if err := h.db.UpdateWorkout(&workout); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(workout)
@@ -86,8 +103,10 @@ func (h *WorkoutHandler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Delete workout with id from database
-	_ = id // Mark id as used until database implementation
+	if err := h.db.DeleteWorkout(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }

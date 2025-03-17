@@ -1,3 +1,26 @@
+// Dark mode toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    
+    // Check for saved dark mode preference
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    if (darkMode) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        darkModeToggle.checked = true;
+    }
+
+    // Toggle dark mode
+    darkModeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+            localStorage.setItem('darkMode', 'true');
+        } else {
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            localStorage.setItem('darkMode', 'false');
+        }
+    });
+});
+
 // Initialize Bootstrap modal
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 
@@ -9,9 +32,10 @@ document.getElementById('workoutForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const workout = {
         name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        duration: parseInt(document.getElementById('duration').value),
-        type: document.getElementById('type').value,
+        sets: parseInt(document.getElementById('sets').value),
+        reps: parseInt(document.getElementById('reps').value),
+        weight: parseInt(document.getElementById('weight').value),
+        notes: document.getElementById('notes').value,
         date: new Date(document.getElementById('date').value).toISOString()
     };
 
@@ -58,12 +82,15 @@ function displayWorkouts(workouts) {
         const card = document.createElement('div');
         card.className = 'col-md-6';
         card.innerHTML = `
-            <div class="card workout-card workout-type-${workout.type} mb-3">
+            <div class="card workout-card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">${workout.name}</h5>
-                    <p class="card-text">${workout.description}</p>
-                    <p class="workout-duration">${workout.duration} minutes</p>
-                    <p class="workout-date">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</p>
+                    <div class="workout-details">
+                        <p class="mb-1">Sets: ${workout.sets} × Reps: ${workout.reps}</p>
+                        <p class="mb-1">Weight: ${workout.weight} lbs</p>
+                        ${workout.notes ? `<p class="mb-1">Notes: ${workout.notes}</p>` : ''}
+                        <p class="workout-date">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</p>
+                    </div>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-outline-primary" onclick="editWorkout(${workout.id})">Edit</button>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteWorkout(${workout.id})">Delete</button>
@@ -83,9 +110,10 @@ async function editWorkout(id) {
         
         document.getElementById('editId').value = workout.id;
         document.getElementById('editName').value = workout.name;
-        document.getElementById('editDescription').value = workout.description;
-        document.getElementById('editDuration').value = workout.duration;
-        document.getElementById('editType').value = workout.type;
+        document.getElementById('editSets').value = workout.sets;
+        document.getElementById('editReps').value = workout.reps;
+        document.getElementById('editWeight').value = workout.weight;
+        document.getElementById('editNotes').value = workout.notes;
         document.getElementById('editDate').value = new Date(workout.date).toISOString().slice(0, 16);
         
         editModal.show();
@@ -100,9 +128,10 @@ document.getElementById('saveEdit').addEventListener('click', async () => {
     const id = document.getElementById('editId').value;
     const workout = {
         name: document.getElementById('editName').value,
-        description: document.getElementById('editDescription').value,
-        duration: parseInt(document.getElementById('editDuration').value),
-        type: document.getElementById('editType').value,
+        sets: parseInt(document.getElementById('editSets').value),
+        reps: parseInt(document.getElementById('editReps').value),
+        weight: parseInt(document.getElementById('editWeight').value),
+        notes: document.getElementById('editNotes').value,
         date: new Date(document.getElementById('editDate').value).toISOString()
     };
 
