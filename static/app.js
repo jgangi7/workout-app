@@ -27,6 +27,38 @@ const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 // Load workouts when the page loads
 document.addEventListener('DOMContentLoaded', loadWorkouts);
 
+// Function to update PR displays
+function updatePRs(workouts) {
+    const liftMaxes = {
+        'Squat': 0,
+        'Bench': 0,
+        'Deadlift': 0
+    };
+
+    // Find max weight for each lift
+    workouts.forEach(workout => {
+        const name = workout.name.trim().toLowerCase();
+        if (name === 'squat' && workout.weight > liftMaxes['Squat']) {
+            liftMaxes['Squat'] = workout.weight;
+        } else if (name === 'bench' && workout.weight > liftMaxes['Bench']) {
+            liftMaxes['Bench'] = workout.weight;
+        } else if (name === 'deadlift' && workout.weight > liftMaxes['Deadlift']) {
+            liftMaxes['Deadlift'] = workout.weight;
+        }
+    });
+
+    // Update display for individual lifts
+    document.getElementById('maxSquat').textContent = liftMaxes['Squat'] > 0 ? `${liftMaxes['Squat']} lbs` : '--';
+    document.getElementById('maxBench').textContent = liftMaxes['Bench'] > 0 ? `${liftMaxes['Bench']} lbs` : '--';
+    document.getElementById('maxDeadlift').textContent = liftMaxes['Deadlift'] > 0 ? `${liftMaxes['Deadlift']} lbs` : '--';
+
+    // Calculate total from the maxes that exist (will be 0 if not recorded)
+    const total = liftMaxes['Squat'] + liftMaxes['Bench'] + liftMaxes['Deadlift'];
+    
+    // Only display total if at least one lift has been recorded
+    document.getElementById('totalWeight').textContent = total > 0 ? `${total} lbs` : '--';
+}
+
 // Add workout form submission
 document.getElementById('workoutForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -66,6 +98,7 @@ async function loadWorkouts() {
         const response = await fetch('/api/workouts');
         const workouts = await response.json();
         displayWorkouts(workouts);
+        updatePRs(workouts);
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to load workouts');

@@ -7,6 +7,7 @@
     --input-bg: #ffffff;
     --input-border: #ced4da;
     --input-text: #212529;
+    --pr-text: #198754;  /* Bootstrap success color */
 }
 
 /* Dark mode styles */
@@ -18,6 +19,7 @@
     --input-bg: #343a40;
     --input-border: #495057;
     --input-text: #f8f9fa;
+    --pr-text: #28a745;  /* Slightly brighter green for dark mode */
 }
 
 body {
@@ -79,4 +81,21 @@ body {
 .navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 2rem;
+}
+
+/* PR Display Styles */
+.display-6 {
+    color: var(--pr-text);
+    font-weight: bold;
+    margin-bottom: 0;
+    font-size: 1.5rem;
+}
+
+#totalWeight {
+    color: var(--text-color);
+    font-size: 1.75rem;
+}
+
+.card-title {
+    margin-bottom: 1.5rem;
 } 
