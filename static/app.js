@@ -25,7 +25,14 @@ document.addEventListener('DOMContentLoaded', function() {
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 
 // Load workouts when the page loads
-document.addEventListener('DOMContentLoaded', loadWorkouts);
+document.addEventListener('DOMContentLoaded', function() {
+    loadWorkouts();
+    
+    // Auto-fill current date and time
+    const now = new Date();
+    const dateInput = document.getElementById('date');
+    dateInput.value = now.toISOString().slice(0, 16);
+});
 
 // Function to update PR displays
 function updatePRs(workouts) {
