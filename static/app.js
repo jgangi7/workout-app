@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize Bootstrap modal
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+let progressChart = null;
 
 // Load workouts when the page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -122,7 +124,7 @@ function displayWorkouts(workouts) {
         const card = document.createElement('div');
         card.className = 'col-md-6';
         card.innerHTML = `
-            <div class="card workout-card mb-3">
+            <div class="card workout-card mb-3" style="cursor: pointer;" onclick="showProgress('${workout.name}', ${workout.id})">
                 <div class="card-body">
                     <h5 class="card-title">${workout.name}</h5>
                     <div class="workout-details">
@@ -132,8 +134,8 @@ function displayWorkouts(workouts) {
                         <p class="workout-date">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</p>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-primary" onclick="editWorkout(${workout.id})">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteWorkout(${workout.id})">Delete</button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); editWorkout(${workout.id})">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteWorkout(${workout.id})">Delete</button>
                     </div>
                 </div>
             </div>
@@ -215,5 +217,70 @@ async function deleteWorkout(id) {
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to delete workout');
+    }
+}
+
+// Show progress chart
+async function showProgress(exerciseName, currentId) {
+    try {
+        const response = await fetch('/api/workouts');
+        const workouts = await response.json();
+        
+        // Filter workouts for the same exercise and sort by date
+        const exerciseWorkouts = workouts
+            .filter(w => w.name.toLowerCase() === exerciseName.toLowerCase())
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        if (exerciseWorkouts.length === 0) {
+            alert('No previous workouts found for this exercise');
+            return;
+        }
+
+        // Prepare data for the chart
+        const dates = exerciseWorkouts.map(w => new Date(w.date).toLocaleDateString());
+        const weights = exerciseWorkouts.map(w => w.weight);
+
+        // Destroy existing chart if it exists
+        if (progressChart) {
+            progressChart.destroy();
+        }
+
+        // Create new chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: `${exerciseName} Weight Progress`,
+                    data: weights,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Weight (lbs)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+
+        progressModal.show();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to load progress data');
     }
 } 
