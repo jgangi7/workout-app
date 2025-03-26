@@ -71,16 +71,52 @@ function updatePRs(workouts) {
 // Add workout form submission
 document.getElementById('workoutForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Get and validate form values
+    const name = document.getElementById('name').value.trim();
+    const sets = parseInt(document.getElementById('sets').value);
+    const reps = parseInt(document.getElementById('reps').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    const notes = document.getElementById('notes').value.trim();
+    const date = document.getElementById('date').value;
+
+    // Validate required fields
+    if (!name || !sets || !reps || !weight || !date) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    // Validate numeric ranges
+    if (sets < 1 || sets > 20) {
+        alert('Sets must be between 1 and 20');
+        return;
+    }
+
+    if (reps < 1 || reps > 100) {
+        alert('Reps must be between 1 and 100');
+        return;
+    }
+
+    if (weight < 0 || weight > 1000) {
+        alert('Weight must be between 0 and 1000 lbs');
+        return;
+    }
+
+    // Format date to match the expected format (YYYY-MM-DDTHH:mm:ssZ)
+    const dateObj = new Date(date);
+    const formattedDate = dateObj.toISOString();
+
     const workout = {
-        name: document.getElementById('name').value,
-        sets: parseInt(document.getElementById('sets').value),
-        reps: parseInt(document.getElementById('reps').value),
-        weight: parseInt(document.getElementById('weight').value),
-        notes: document.getElementById('notes').value,
-        date: new Date(document.getElementById('date').value).toISOString()
+        name,
+        sets,
+        reps,
+        weight,
+        notes,
+        date: formattedDate
     };
 
     try {
+        console.log('Sending workout data:', workout); // Debug log
         const response = await fetch('/api/workouts', {
             method: 'POST',
             headers: {
@@ -89,15 +125,30 @@ document.getElementById('workoutForm').addEventListener('submit', async (e) => {
             body: JSON.stringify(workout)
         });
 
-        if (response.ok) {
-            document.getElementById('workoutForm').reset();
-            loadWorkouts();
-        } else {
-            alert('Failed to add workout');
+        // Clone the response so we can read it multiple times if needed
+        const responseClone = response.clone();
+
+        if (!response.ok) {
+            let errorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || 'Failed to add workout';
+            } catch (e) {
+                // If response is not JSON, get text content
+                errorMessage = await responseClone.text();
+            }
+            console.error('Server error:', errorMessage); // Debug log
+            throw new Error(errorMessage);
         }
+
+        const result = await response.json();
+        console.log('Success:', result); // Debug log
+        
+        document.getElementById('workoutForm').reset();
+        loadWorkouts();
     } catch (error) {
         console.error('Error:', error);
-        alert('Failed to add workout');
+        alert(error.message || 'Failed to add workout');
     }
 });
 
@@ -168,16 +219,22 @@ async function editWorkout(id) {
 // Save edited workout
 document.getElementById('saveEdit').addEventListener('click', async () => {
     const id = document.getElementById('editId').value;
+    const date = document.getElementById('editDate').value;
+    
+    // Format date to match SQLite DATETIME format
+    const formattedDate = new Date(date).toISOString().replace('T', ' ').replace('Z', '');
+
     const workout = {
         name: document.getElementById('editName').value,
         sets: parseInt(document.getElementById('editSets').value),
         reps: parseInt(document.getElementById('editReps').value),
         weight: parseInt(document.getElementById('editWeight').value),
         notes: document.getElementById('editNotes').value,
-        date: new Date(document.getElementById('editDate').value).toISOString()
+        date: formattedDate
     };
 
     try {
+        console.log('Sending updated workout data:', workout); // Debug log
         const response = await fetch(`/api/workouts/${id}`, {
             method: 'PUT',
             headers: {
@@ -186,15 +243,20 @@ document.getElementById('saveEdit').addEventListener('click', async () => {
             body: JSON.stringify(workout)
         });
 
-        if (response.ok) {
-            editModal.hide();
-            loadWorkouts();
-        } else {
-            alert('Failed to update workout');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server error:', errorData); // Debug log
+            throw new Error(errorData.error || 'Failed to update workout');
         }
+
+        const result = await response.json();
+        console.log('Success:', result); // Debug log
+        
+        editModal.hide();
+        loadWorkouts();
     } catch (error) {
         console.error('Error:', error);
-        alert('Failed to update workout');
+        alert(error.message || 'Failed to update workout');
     }
 });
 

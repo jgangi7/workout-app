@@ -22,17 +22,24 @@ func NewWorkoutHandler(db *models.WorkoutDB) *WorkoutHandler {
 func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 	var workout models.Workout
 	if err := json.NewDecoder(r.Body).Decode(&workout); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
-	// Set the date to current time if not provided
+	// Parse the date string into time.Time
 	if workout.Date.IsZero() {
 		workout.Date = time.Now()
+	} else {
+		// The date should already be in ISO format from the frontend
+		// No need to parse it again as Go's time.Time will handle it automatically
 	}
 
 	if err := h.db.CreateWorkout(&workout); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create workout: " + err.Error()})
 		return
 	}
 
