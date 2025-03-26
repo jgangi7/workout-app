@@ -8,6 +8,9 @@
     --input-border: #ced4da;
     --input-text: #212529;
     --pr-text: #198754;  /* Bootstrap success color */
+    --navbar-bg: #f8f9fa;
+    --navbar-text: #212529;
+    --navbar-border: #dee2e6;
 }
 
 /* Dark mode styles */
@@ -20,6 +23,9 @@
     --input-border: #495057;
     --input-text: #f8f9fa;
     --pr-text: #28a745;  /* Slightly brighter green for dark mode */
+    --navbar-bg: #212529;
+    --navbar-text: #f8f9fa;
+    --navbar-border: #495057;
 }
 
 body {
@@ -80,7 +86,39 @@ body {
 
 .navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: var(--navbar-bg) !important;
     margin-bottom: 2rem;
+}
+
+.navbar-brand {
+    color: var(--navbar-text) !important;
+    background: linear-gradient(45deg, var(--navbar-text), var(--navbar-text));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+}
+
+.form-check-input {
+    cursor: pointer;
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.25em;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary {
+    border-width: 2px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
 }
 
 /* PR Display Styles */
@@ -98,4 +136,8 @@ body {
 
 .card-title {
     margin-bottom: 1.5rem;
+}
+
+.form-check-label {
+    color: var(--navbar-text);
 } 
